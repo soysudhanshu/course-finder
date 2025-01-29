@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\Course;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use League\Csv\Reader;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,11 +15,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $file = base_path('database/sample.csv');
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        $csv = Reader::createFromPath($file, 'r');
+
+        $csv->setHeaderOffset(0);
+
+        foreach ($csv->getRecords() as $record) {
+            Course::create($record);
+        }
     }
 }

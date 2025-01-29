@@ -30,6 +30,13 @@ class CourseController extends Controller
             });
         }
 
+
+        if ($request->has('categories')) {
+            $query->whereHas('categories', function (Builder $query) use ($request) {
+                $query->whereIn('id', $request->categories);
+            });
+        }
+
         return new CourseCollection($query->paginate());
     }
 }

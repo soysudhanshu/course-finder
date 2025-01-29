@@ -3,13 +3,32 @@
 namespace Tests\Feature;
 
 use App\Models\Course;
+use App\Models\CourseCategory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 class CourseApiTest extends TestCase
 {
     use RefreshDatabase;
+
+    /**
+     * @var Course[]
+     */
+    protected array $courses;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->courses = [
+            $this->addCourse('Course name', 'Course description'),
+            $this->addCourse('Computer Science', 'Computer Science description'),
+            $this->addCourse('Accounting', 'In this module, you will learn about accounting'),
+        ];
+    }
+
     /**
      * A basic feature test example.
      */
@@ -22,14 +41,13 @@ class CourseApiTest extends TestCase
 
     public function testCourseSearchParam(): void
     {
-        $this->addCourse('Course name', 'Course description');
-        $this->addCourse('Computer Science', 'Computer Science description');
+        $course = $this->courses[0];
 
 
-        $response = $this->get('/api/courses?search=hello');
+        $response = $this->requestCourses(['search' => $course->name]);
         $response->assertStatus(200);
-        $data = $response->json('data');
-        $this->assertEmpty($data, 'Search should return empty result');
+        $response->assertJsonCount(1, 'data');
+
 
         $response = $this->get('/api/courses?search=Course');
         $response->assertStatus(200);
@@ -50,55 +68,50 @@ class CourseApiTest extends TestCase
 
     public function testSearchParamInDescription(): void
     {
-        $this->addCourse('Accounting', 'In this module, you will learn about accounting');
+        $this->addCourse('Film Making', 'In this module, you will learn about cinematic film making');
 
-        $this->addCourse('Course name', 'Course description in the middle');
-        $this->addCourse('Computer Science', 'Computer Science description');
-
-        $response = $this->get('/api/courses?search=description');
+        $response = $this->requestCourses(['search' => 'cinematic']);
         $response->assertStatus(200);
-        $data = $response->json('data');
+        $response->assertJsonCount(1, 'data');
+    }
 
-        $this->assertNotEmpty($data, 'Search should return result');
-        $this->assertCount(2, $data, 'Search should return one result');
-        $response->assertJson([
-            'data' => [
+    public function testSearchParamTokenisesInput(): void
+    {
+        $search = implode(' ', array_column($this->courses, 'name'));
+
+        $response = $this->requestCourses(['search' => $search]);
+        $response->assertStatus(200);
+        $response->assertJsonCount(count($this->courses), 'data');
+    }
+
+    public function testCategorySearch(): void
+    {
+        $category = $this->addCourseCategory('Programming');
+
+        $course = $this->courses[0];
+
+        $course->categories()->attach($category);
+
+        $response = $this->requestCourses(['categories' => [$category->id]]);
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+        $response->assertJsonFragment([
+            "data" => [
                 [
-                    'name' => 'Course name',
-                    'description' => 'Course description in the middle',
-                ],
-                [
-                    'name' => 'Computer Science',
-                    'description' => 'Computer Science description',
+                    'id' => $course->id,
+                    'name' => $course->name,
+                    'description' => $course->description,
                 ]
-            ],
+            ]
         ]);
     }
 
-    public function testSearchParamUsesWords(): void
+    protected function requestCourses(array $params = []): TestResponse
     {
-        $this->addCourse('Film Making', 'In this module, you will learn about film making');
+        $response = $this->get('/api/courses?' . http_build_query($params));
 
-        $this->addCourse('Accounting', 'In this module, you will learn about accounting');
-        $this->addCourse('Computer Science', 'Computer Science description');
-
-        $response = $this->get('/api/courses?search=accounting science');
-        $response->assertStatus(200);
-        $data = $response->json('data');
-        $this->assertNotEmpty($data, 'Search should return result');
-        $this->assertCount(2, $data, 'Search should return one result');
-        $response->assertJson([
-            'data' => [
-                [
-                    'name' => 'Accounting',
-                    'description' => 'In this module, you will learn about accounting',
-                ],
-                [
-                    'name' => 'Computer Science',
-                    'description' => 'Computer Science description',
-                ]
-            ],
-        ]);
+        return $response;
     }
 
     protected function addCourse(string $name, string $description): Course
@@ -110,5 +123,15 @@ class CourseApiTest extends TestCase
         $course->save();
 
         return $course;
+    }
+
+    protected function addCourseCategory(string $name): CourseCategory
+    {
+        $category = new CourseCategory();
+
+        $category->name = $name;
+        $category->save();
+
+        return $category;
     }
 }

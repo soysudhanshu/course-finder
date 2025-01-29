@@ -6,7 +6,8 @@
 
     <div class="container mx-auto my-8 grid grid-cols-[3fr_9fr] gap-4" x-data="courseFinder()">
         <aside>
-            <form action="" x-ref="form" x-on:submit.prevent="fetchCourses()">
+            <form action="" x-ref="form" x-on:submit.prevent="fetchCourses()" x-on:change="fetchCourses()"
+                class="grid gap-4 grid-cols-[1fr] bg-gray-100 p-4">
                 {{-- <div class="p-4"> --}}
                 <h2>Filters</h2>
                 <label>
@@ -18,7 +19,19 @@
 
                 </label>
 
-                {{-- </div> --}}
+                <fieldset class="border-b border-gray-200 p-4 border shadow-sm rounded bg-white ">
+                    <legend class="text-lg float-left">Categories</legend>
+                    <div class="max-h-[200px] overflow-y-auto  clear-both ">
+                        @foreach ($categories as $option)
+                            <label class="flex gap-2 ">
+                                <span>
+                                    <input type="checkbox" name="categories[]" value="{{ $option['value'] }}">
+                                </span>
+                                <span>{{ $option['label'] }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </fieldset>
             </form>
         </aside>
         <div class="flex flex-col gap-4">
@@ -49,9 +62,7 @@
                     const filters = this.getFilters();
                     const url = new URL('/api/courses', window.location.origin);
 
-                    for (const key in filters) {
-                        url.searchParams.append(key, filters[key]);
-                    }
+                    url.search = new URLSearchParams(filters);
 
                     fetch(url)
                         .then(response => response.json())
@@ -63,7 +74,7 @@
                     const form = this.$refs.form;
                     const formData = new FormData(form);
 
-                    return Object.fromEntries(formData);
+                    return formData;
                 }
             }
         }

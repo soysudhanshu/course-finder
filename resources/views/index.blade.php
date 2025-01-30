@@ -6,7 +6,8 @@
 
     <div class="container mx-auto my-8 grid grid-cols-[3fr_9fr] gap-4" x-data="courseFinder()">
         <aside>
-            <form action="" x-ref="form" x-on:submit.prevent="fetchCourses()" x-on:change="fetchCourses()"
+            <form action="" id="filter-form" x-ref="form" x-on:submit.prevent="fetchCourses()"
+                x-on:change="fetchCourses()"
                 class="grid gap-4 grid-cols-[1fr] bg-gray-100 p-4">
                 {{-- <div class="p-4"> --}}
                 <h2>Filters</h2>
@@ -66,6 +67,22 @@
                     </div>
                 </div>
             </template>
+            <div class="flex justify-center gap-2 items-center">
+                <template x-for="link in links">
+                    <label
+                        type="submit"
+                        class="border rounded aspect-square w-[2rem] flex justify-center items-center text-center shrink-0">
+                        <input
+                            form="filter-form"
+
+                            type="radio" name="page" x-model="link.active" x-bind:value="link.label"
+                            x-bind:checked="link.active ? 'page' : null"
+                            x-on:change="fetchCourses()"
+                            class="sr-only">
+                        <span x-text="link.label"></span>
+                    </label>
+                </template>
+            </div>
         </div>
     </div>
 
@@ -73,6 +90,7 @@
         window.courseFinder = () => {
             return {
                 courses: [],
+                links: [],
                 init() {
                     this.fetchCourses();
                 },
@@ -86,6 +104,7 @@
                         .then(response => response.json())
                         .then(data => {
                             this.courses = data.data;
+                            this.links = data.meta.links;
                         });
                 },
                 getFilters() {

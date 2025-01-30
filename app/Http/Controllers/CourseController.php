@@ -106,6 +106,8 @@ class CourseController extends Controller
             $query->where('format', $request->format);
         }
 
-        return new CourseCollection($query->paginate());
+        return new CourseCollection($query->paginate(
+            page: $request->page ?? 1,
+        ));
     }
 }

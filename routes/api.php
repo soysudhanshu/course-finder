@@ -10,3 +10,5 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/courses', [CourseController::class, 'index']);
 Route::get('/courses/{id}', [CourseController::class, 'show']);
+Route::post('/courses', [CourseController::class, 'add']);
+Route::delete('/courses/{id}', [CourseController::class, 'delete']);

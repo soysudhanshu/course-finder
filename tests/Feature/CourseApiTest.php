@@ -33,6 +33,21 @@ class CourseApiTest extends TestCase
         ];
     }
 
+
+    public function testDeletesCourse(): void
+    {
+        $course = $this->courses[0];
+
+        $response = $this->delete('/api/courses/' . $course->id);
+
+        $response->assertStatus(200);
+
+        $this->assertDatabaseMissing('courses', [
+            'id' => $course->id,
+        ]);
+    }
+    
+
     /**
      * A basic feature test example.
      */
@@ -268,7 +283,7 @@ class CourseApiTest extends TestCase
             $this->courses[0],
             ['format' => CourseFormatEnum::VIDEO->value]
         );
-        
+
         $this->setCourseProperties(
             $this->courses[1],
             ['format' => CourseFormatEnum::INTERACTIVE->value]

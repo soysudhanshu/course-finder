@@ -2,13 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CourseDifficultyEnum;
+use App\Enums\CourseFormatEnum;
 use App\Enums\RangeEnum;
+use App\Http\Requests\AddCourseRequest;
 use App\Http\Resources\Course as ResourcesCourse;
 use App\Http\Resources\CourseCollection;
 use App\Models\Course;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class CourseController extends Controller
 {
@@ -115,5 +121,89 @@ class CourseController extends Controller
     public function show($id)
     {
         return new ResourcesCourse(Course::findOrFail($id));
+    }
+
+    public function add(Request $request)
+    {
+        $validator = Validator::make($request->all(), $this->getValidations());
+
+        if (!$validator->passes()) {
+            return response()->json($validator->errors(), Response::HTTP_BAD_REQUEST);
+        }
+
+        $inputs = $validator->validated();
+
+        $course  = new Course();
+
+        $course->name = $inputs['name'];
+        $course->description = $inputs['description'];
+        $course->difficulty = $inputs['difficulty'];
+        $course->duration = $inputs['duration'];
+        $course->rating = $inputs['rating'];
+        $course->is_certified = $inputs['is_certified'];
+        $course->format = $inputs['format'];
+
+        $course->save();
+
+
+        return response()->json(
+            ResourcesCourse::make($course),
+            Response::HTTP_CREATED
+        );
+    }
+
+    public function delete($id)
+    {
+        $course = Course::find($id);
+
+        if ($course) {
+            $course->delete();
+        }
+
+        return response()->json(['Course successfully deleted'], Response::HTTP_OK);
+    }
+
+    protected function getValidations(): array
+    {
+        return [
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            'description' => [
+                'required',
+                'string',
+                'max:500',
+            ],
+            'difficulty' => [
+                'required',
+                Rule::enum(CourseDifficultyEnum::class),
+            ],
+            'duration' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            'rating' => [
+                'required',
+                'numeric',
+                'min:0',
+                'max:5',
+            ],
+            'is_certified' => [
+                'required',
+                'boolean',
+            ],
+            'format' => [
+                'required',
+                Rule::enum(CourseFormatEnum::class),
+            ],
+            'categories' => [
+                'required',
+                'array',
+                Rule::exists('course_categories', 'id'),
+            ],
+        ];
     }
 }

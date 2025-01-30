@@ -17,8 +17,8 @@
             'lg:static lg:!block',
         ])>
             <form
-                action="" id="filter-form" x-ref="form" x-on:submit.prevent="fetchCourses()"
-                x-on:change="fetchCourses()"
+                action="" id="filter-form" x-ref="form" x-on:submit.prevent.debounce="fetchCourses()"
+                x-on:change.debounce="fetchCourses()"
                 class="grid gap-4 grid-cols-[1fr] bg-gray-100 p-4 relative">
 
                 <button
@@ -47,6 +47,8 @@
                         <x-toggle
                             :label="$filter['label']"
                             :name="$filter['name']" />
+                    @elseif($filter['type'] === 'range')
+                        <x-price min-input-name="price_min" max-input-name="price_max"/>
                     @endif
                 @endforeach
             </form>
@@ -93,8 +95,8 @@
                     <label
                         type="submit"
                         @class([
-                            "border rounded aspect-square w-[2rem] justify-center items-center text-center shrink-0 ",
-                            "hidden first:flex last:flex lg:flex",
+                            'border rounded aspect-square w-[2rem] justify-center items-center text-center shrink-0 ',
+                            'hidden first:flex last:flex lg:flex',
                         ])>
                         <input
                             form="filter-form"

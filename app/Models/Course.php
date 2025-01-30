@@ -18,10 +18,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property float $rating
  * @property bool $is_certified
  * @property mixed $name
+ * @property float $price
  */
 class Course extends Model
 {
     use HasFactory;
+
     protected function casts(): array
     {
         return [

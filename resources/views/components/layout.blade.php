@@ -12,6 +12,12 @@
         href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
         rel="stylesheet">
     @vite(['resources/css/app.css'])
+
+    <script src="https://releases.jquery.com/git/jquery-git.min.js" defer></script>
+    <script src="https://code.jquery.com/ui/1.14.0/jquery-ui.min.js" defer></script>
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.0/themes/smoothness/jquery-ui.css">
+
     {{ $head ?? '' }}
 </head>
 

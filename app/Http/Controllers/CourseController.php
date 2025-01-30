@@ -113,6 +113,12 @@ class CourseController extends Controller
             $query->where('format', $request->format);
         }
 
+        if ($request->has('free_courses_only')) {
+            $query->where('price', 0);
+        } elseif ($request->has('price_min') && $request->has('price_max')) {
+            $query->whereBetween('price', [$request->price_min, $request->price_max]);
+        }
+
         return new CourseCollection($query->paginate(
             page: $request->page ?? 1,
         ));

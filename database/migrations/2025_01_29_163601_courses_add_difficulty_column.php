@@ -30,8 +30,15 @@ return new class extends Migration
                 ->default(false)
                 ->index();
 
+
+
             $table->tinyText('format')
                 ->default('text')
+                ->index();
+
+
+            $table->decimal('price', 8, 2)
+                ->default(0)
                 ->index();
         });
     }
@@ -42,12 +49,14 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('courses', function (Blueprint $table) {
+            $table->dropIndex(['price']);
             $table->dropIndex(['format']);
             $table->dropIndex(['is_certified']);
             $table->dropIndex(['rating']);
             $table->dropIndex(['difficulty']);
             $table->dropIndex(['duration']);
 
+            $table->dropColumn(['price']);
             $table->dropColumn(['format']);
             $table->dropColumn(['is_certified']);
             $table->dropColumn(['rating']);

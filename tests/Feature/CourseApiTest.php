@@ -46,7 +46,7 @@ class CourseApiTest extends TestCase
             'id' => $course->id,
         ]);
     }
-    
+
 
     /**
      * A basic feature test example.
@@ -83,7 +83,6 @@ class CourseApiTest extends TestCase
             ],
         ]);
     }
-
 
     public function testSearchParamInDescription(): void
     {
@@ -297,6 +296,68 @@ class CourseApiTest extends TestCase
         $response->assertJsonCount(1, 'data');
 
         $this->assertResponseContainsCourse($response, $this->courses[0]);
+    }
+
+
+    public function testPriceParam(): void
+    {
+        $this->setCourseProperties(
+            $this->courses[0],
+            ['price' => 0]
+        );
+
+        $this->setCourseProperties(
+            $this->courses[1],
+            ['price' => 100]
+        );
+
+        $this->setCourseProperties(
+            $this->courses[2],
+            ['price' => 50]
+        );
+
+        $response = $this->requestCourses([
+            'price_min' => 0,
+            'price_max' => 50,
+        ]);
+
+        $response = $this->requestCourses([
+            'free_courses_only' => true,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+
+        $this->assertResponseContainsCourse($response, $this->courses[0]);
+    }
+
+    public function testPriceParamRange(): void
+    {
+        $this->setCourseProperties(
+            $this->courses[0],
+            ['price' => 0]
+        );
+
+        $this->setCourseProperties(
+            $this->courses[1],
+            ['price' => 50]
+        );
+
+        $this->setCourseProperties(
+            $this->courses[2],
+            ['price' => 100]
+        );
+
+        $response = $this->requestCourses([
+            'price_min' => 0,
+            'price_max' => 50,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(2, 'data');
+
+        $this->assertResponseContainsCourse($response, $this->courses[0]);
+        $this->assertResponseContainsCourse($response, $this->courses[1]);
     }
 
     protected function requestCourses(array $params = []): TestResponse

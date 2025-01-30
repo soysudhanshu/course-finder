@@ -36,6 +36,9 @@ class IndexController extends Controller
                 'placeholder' => 'Search by course name',
             ],
             [
+                'type' => 'range',
+            ],
+            [
                 'type' => 'checklist',
                 'name' => 'categories',
                 'label' => 'Categories',

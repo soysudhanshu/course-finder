@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\CourseDifficultyEnum;
 use App\Enums\CourseFormatEnum;
+use App\Enums\CoursePopularityEnum;
 use App\Enums\RangeEnum;
 use App\Http\Requests\AddCourseRequest;
 use App\Http\Resources\Course as ResourcesCourse;
@@ -153,6 +154,9 @@ class CourseController extends Controller
         $course->is_certified = $inputs['is_certified'];
         $course->format = $inputs['format'];
         $course->price = $inputs['price'];
+        $course->popularity = $inputs['popularity'];
+        $course->instructor = $inputs['instructor'];
+
 
         $course->save();
 
@@ -185,6 +189,8 @@ class CourseController extends Controller
         $course->rating = $inputs['rating'];
         $course->is_certified = $inputs['is_certified'];
         $course->format = $inputs['format'];
+        $course->price = $inputs['price'];
+        $course->popularity = $inputs['popularity'];
 
         $course->save();
 
@@ -226,7 +232,8 @@ class CourseController extends Controller
             ],
             'duration' => [
                 'required',
-                'string',
+                'numeric',
+                'min:0',
                 'max:255',
             ],
             'rating' => [
@@ -253,6 +260,15 @@ class CourseController extends Controller
                 'numeric',
                 'min:0',
                 'max:999999.99',
+            ],
+            'popularity' => [
+                'required',
+                Rule::enum(CoursePopularityEnum::class),
+            ],
+            'instructor' => [
+                'required',
+                'string',
+                'max:255',
             ],
         ];
     }

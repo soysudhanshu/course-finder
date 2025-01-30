@@ -7,9 +7,12 @@ use App\Enums\CourseFormatEnum;
 use App\Http\Controllers\CourseController;
 use App\Models\Course;
 use App\Models\CourseCategory;
+use App\Models\User;
+use Database\Factories\CourseFactory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\TestResponse;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class CourseApiGetTest extends TestCase
@@ -17,6 +20,7 @@ class CourseApiGetTest extends TestCase
     use RefreshDatabase;
 
     protected CourseCategory $category;
+    protected User $user;
 
 
     public function setUp(): void
@@ -24,34 +28,27 @@ class CourseApiGetTest extends TestCase
         parent::setUp();
 
         $this->category = $this->createCourseCategory('Category 1');
+        $this->user = User::factory()->create();
     }
 
     public function testAddCourse(): void
     {
-        $input = [
-            'name' => 'Course name',
-            'description' => 'Course description',
-            'difficulty' => 1,
-            'format' => 'video',
-            'duration' => '2',
-            'categories' => [$this->category->id],
-            'rating' => 4.5,
-            'is_certified' => true,
-            'format' => CourseFormatEnum::INTERACTIVE->value,
-            'price' => 100,
-        ];
+        $course = Course::factory()->makeOne();
 
+        $input = $course->toArray();
+        $input['categories'] = [$this->category->id];
+
+        Sanctum::actingAs(User::factory()->create());
         $response = $this->post('/api/courses', $input);
+
+        // dd($response->json(), $input);
 
         $response->assertCreated();
 
+
         $this->assertDatabaseCount('courses', 1);
 
-        $databaseEntry = $input;
-
-        unset($databaseEntry['categories']);
-
-        $this->assertDatabaseHas('courses', $databaseEntry);
+        $this->assertDatabaseHas('courses', $course->toArray());
 
         Course::first()->categories()->get()->each(function (CourseCategory $category) use ($input) {
             $this->assertContains($category->id, $input['categories']);
@@ -106,6 +103,8 @@ class CourseApiGetTest extends TestCase
 
     protected function sendPutRequest(int $id, array $input): TestResponse
     {
+        Sanctum::actingAs(User::factory()->create());
+
         return  $this->put("/api/courses/{$id}", $input);
     }
 

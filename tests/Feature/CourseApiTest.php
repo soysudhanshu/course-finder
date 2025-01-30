@@ -8,10 +8,12 @@ use App\Enums\CoursePopularityEnum;
 use App\Enums\RangeEnum;
 use App\Models\Course;
 use App\Models\CourseCategory;
+use App\Models\User;
 use DateInterval;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\TestResponse;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class CourseApiTest extends TestCase
@@ -23,6 +25,8 @@ class CourseApiTest extends TestCase
      */
     protected array $courses;
 
+    protected User $user;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -32,13 +36,17 @@ class CourseApiTest extends TestCase
             $this->addCourse('Computer Science', 'Computer Science description'),
             $this->addCourse('Accounting', 'In this module, you will learn about accounting'),
         ];
+
+        $this->user = User::factory()->create();
     }
 
+    
 
     public function testDeletesCourse(): void
     {
         $course = $this->courses[0];
 
+        Sanctum::actingAs($this->user);
         $response = $this->delete('/api/courses/' . $course->id);
 
         $response->assertStatus(200);

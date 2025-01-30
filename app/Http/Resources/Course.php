@@ -27,7 +27,7 @@ class Course extends JsonResource
             'is_free' => $this->price == 0,
             'rating' => $this->rating,
             'instructor' => $this->instructor,
-            'popularity' => $this->popularity->label(),
+            'popularity' => $this->popularity?->label(),
 
         ];
     }

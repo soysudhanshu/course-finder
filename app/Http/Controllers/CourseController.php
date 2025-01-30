@@ -152,6 +152,40 @@ class CourseController extends Controller
         );
     }
 
+    public function update(Request $request, $id)
+    {
+        $course = Course::find($id);
+
+        if (!$course) {
+            return response()->json(['Course not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $validator = Validator::make($request->all(), $this->getValidations());
+
+        if (!$validator->passes()) {
+            return response()->json($validator->errors(), Response::HTTP_BAD_REQUEST);
+        }
+
+        $inputs = $validator->validated();
+
+        $course->name = $inputs['name'];
+        $course->description = $inputs['description'];
+        $course->difficulty = $inputs['difficulty'];
+        $course->duration = $inputs['duration'];
+        $course->rating = $inputs['rating'];
+        $course->is_certified = $inputs['is_certified'];
+        $course->format = $inputs['format'];
+
+        $course->save();
+
+        $course->categories()->sync($inputs['categories']);
+
+        return response()->json(
+            ResourcesCourse::make($course),
+            Response::HTTP_OK
+        );
+    }
+
     public function delete($id)
     {
         $course = Course::find($id);
@@ -163,7 +197,7 @@ class CourseController extends Controller
         return response()->json(['Course successfully deleted'], Response::HTTP_OK);
     }
 
-    protected function getValidations(): array
+    public function getValidations(): array
     {
         return [
             'name' => [

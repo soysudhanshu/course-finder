@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\CourseDifficultyEnum;
+use App\Enums\CourseFormatEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int $duration
  * @property float $rating
  * @property bool $is_certified
- *
+ * @property mixed $name
  */
 class Course extends Model
 {
@@ -23,6 +24,10 @@ class Course extends Model
     {
         return [
             'difficulty' => CourseDifficultyEnum::class,
+            'is_certified' => 'boolean',
+            'duration' => 'integer',
+            'rating' => 'float',
+            'format' =>  CourseFormatEnum::class,
         ];
     }
 

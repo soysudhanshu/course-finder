@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\CourseDifficultyEnum;
+use App\Enums\CourseFormatEnum;
 use App\Enums\RangeEnum;
 use App\Models\Course;
 use App\Models\CourseCategory;
@@ -259,6 +260,28 @@ class CourseApiTest extends TestCase
 
             $this->assertResponseContainsCourse($response, $this->courses[$index]);
         }
+    }
+
+    public function testFormatParam(): void
+    {
+        $this->setCourseProperties(
+            $this->courses[0],
+            ['format' => CourseFormatEnum::VIDEO->value]
+        );
+        
+        $this->setCourseProperties(
+            $this->courses[1],
+            ['format' => CourseFormatEnum::INTERACTIVE->value]
+        );
+
+        $response = $this->requestCourses([
+            'format' => CourseFormatEnum::VIDEO->value,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+
+        $this->assertResponseContainsCourse($response, $this->courses[0]);
     }
 
     protected function requestCourses(array $params = []): TestResponse

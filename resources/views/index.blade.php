@@ -38,10 +38,31 @@
                         <img class="w-full h-full object-cover rounded"
                             src="https://images.pexels.com/photos/326055/pexels-photo-326055.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2">
                     </div>
-                    <div class="p-4">
-                        <h3 class="card-title  text-xl font-semibold" x-text="course.name"></h3>
-                        <p class="mt-4" x-text="course.description"></p>
+                    <div class="flex flex-col grow">
+                        <div class="p-4">
 
+                            <h3 class="card-title  text-xl font-semibold" x-text="course.name"></h3>
+                            <p class="mt-4" x-text="course.description"></p>
+                        </div>
+
+                        <div class="mt-auto p-4 border-t">
+                            <h4 class="text-lg font-semibold sr-only">Details</h4>
+                            <ul class=" flex gap-4">
+                                <li>
+                                    <strong>Level:</strong>
+                                    <span x-text="course.difficulty"></span>
+                                </li>
+                                <li>
+                                    <strong>Duration:</strong>
+                                    <span x-text="course.duration"></span> hours
+                                </li>
+                                <li>
+                                    <strong>Format:</strong>
+                                    <span x-text="course.format"></span>
+                                </li>
+
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </template>

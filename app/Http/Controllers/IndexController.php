@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\CourseDifficultyEnum;
+use App\Enums\CourseFormatEnum;
 use App\Enums\RangeEnum;
 use App\Models\Course;
 use App\Models\CourseCategory;
@@ -63,6 +64,12 @@ class IndexController extends Controller
                 'name' => 'release_date',
                 'label' => 'Release Date',
                 'options' => $this->getReleaseDateOptions(),
+            ],
+            [
+                'type' => 'radio',
+                'name' => 'format',
+                'label' => 'Course Format',
+                'options' => $this->getCourseFormatOptions(),
             ]
 
         ];
@@ -132,11 +139,6 @@ class IndexController extends Controller
         ];
     }
 
-    private function getCourseFormatOptions(): array
-    {
-        return [];
-    }
-
     private function getReleaseDateOptions(): array
     {
         return [
@@ -155,9 +157,14 @@ class IndexController extends Controller
         ];
     }
 
-    private function getCertificationOptions(): array
+    private function getCourseFormatOptions(): array
     {
-        return [];
+        return array_map(function (CourseFormatEnum $format) {
+            return [
+                'label' => $format->name(),
+                'value' => $format->value,
+            ];
+        }, CourseFormatEnum::cases());
     }
 
     private function getPopularityOptions(): array

@@ -102,6 +102,10 @@ class CourseController extends Controller
             };
         }
 
+        if ($request->has('format')) {
+            $query->where('format', $request->format);
+        }
+
         return new CourseCollection($query->paginate());
     }
 }

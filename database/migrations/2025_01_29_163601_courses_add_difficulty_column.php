@@ -29,6 +29,10 @@ return new class extends Migration
             $table->boolean('is_certified')
                 ->default(false)
                 ->index();
+
+            $table->tinyText('format')
+                ->default('text')
+                ->index();
         });
     }
 
@@ -38,11 +42,13 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('courses', function (Blueprint $table) {
+            $table->dropIndex(['format']);
             $table->dropIndex(['is_certified']);
             $table->dropIndex(['rating']);
             $table->dropIndex(['difficulty']);
             $table->dropIndex(['duration']);
 
+            $table->dropColumn(['format']);
             $table->dropColumn(['is_certified']);
             $table->dropColumn(['rating']);
             $table->dropColumn(['difficulty']);

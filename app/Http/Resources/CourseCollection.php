@@ -14,17 +14,8 @@ class CourseCollection extends ResourceCollection
      */
     public function toArray(Request $request): array
     {
-
         return  [
-            'data' => $this->collection->map(function ($course) {
-                return [
-                    'id' => $course->id,
-                    'name' => $course->name,
-                    'description' => $course->description,
-                    'difficulty' => $course->difficulty,
-                    'duration' => $course->duration,
-                ];
-            })
+            'data' => $this->collection
         ];
     }
 }

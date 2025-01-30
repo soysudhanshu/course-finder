@@ -4,11 +4,30 @@
     </x-slot:head>
 
 
-    <div class="container mx-auto my-8 grid grid-cols-[3fr_9fr] gap-4" x-data="courseFinder()">
-        <aside>
-            <form action="" id="filter-form" x-ref="form" x-on:submit.prevent="fetchCourses()"
+    <div class="container mx-auto my-8 grid grid-cols-[1fr] lg:grid-cols-[3fr_9fr] gap-4 px-4" x-data="courseFinder()">
+        <div class="lg:hidden">
+            <button class="border px-4 py-2 hover:bg-black hover:text-white "
+                x-on:click="showMobileMenu = !showMobileMenu">
+                <span class="sr-only">Show filters</span>
+                Filters
+            </button>
+        </div>
+        <aside x-show="showMobileMenu" @class([
+            'fixed top-0 left-0 w-full h-svh bg-white shadow-lg overflow-y-auto',
+            'lg:static lg:!block',
+        ])>
+            <form
+                action="" id="filter-form" x-ref="form" x-on:submit.prevent="fetchCourses()"
                 x-on:change="fetchCourses()"
-                class="grid gap-4 grid-cols-[1fr] bg-gray-100 p-4">
+                class="grid gap-4 grid-cols-[1fr] bg-gray-100 p-4 relative">
+
+                <button
+                    x-on:click="showMobileMenu = false"
+                    class="lg:hidden absolute text-2xl top-0 right-0 p-4 inline-block"
+                    aria-label="Close filter sidebar">
+                    &times;
+                </button>
+
                 {{-- <div class="p-4"> --}}
                 <h2>Filters</h2>
 
@@ -33,6 +52,7 @@
             </form>
         </aside>
         <div class="flex flex-col gap-4">
+
             <template x-for="course in courses" :key="course.id">
                 <div class="border shadow-sm rounded flex">
                     <div class="max-w-xs shrink-0 grow-0">
@@ -68,15 +88,17 @@
                 </div>
             </template>
             <div class="flex justify-center gap-2 items-center">
+
                 <template x-for="link in links">
                     <label
                         type="submit"
-                        class="border rounded aspect-square w-[2rem] flex justify-center items-center text-center shrink-0">
+                        @class([
+                            "border rounded aspect-square w-[2rem] justify-center items-center text-center shrink-0 ",
+                            "hidden first:flex last:flex lg:flex",
+                        ])>
                         <input
                             form="filter-form"
-
                             type="radio" name="page" x-model="link.active" x-bind:value="link.label"
-                            x-bind:checked="link.active ? 'page' : null"
                             x-on:change="fetchCourses()"
                             class="sr-only">
                         <span x-text="link.label"></span>
@@ -89,6 +111,7 @@
     <script>
         window.courseFinder = () => {
             return {
+                showMobileMenu: false,
                 courses: [],
                 links: [],
                 init() {

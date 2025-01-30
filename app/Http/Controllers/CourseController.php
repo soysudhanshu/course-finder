@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\RangeEnum;
+use App\Http\Resources\Course as ResourcesCourse;
 use App\Http\Resources\CourseCollection;
 use App\Models\Course;
 use Illuminate\Contracts\Database\Query\Builder;
@@ -109,5 +110,10 @@ class CourseController extends Controller
         return new CourseCollection($query->paginate(
             page: $request->page ?? 1,
         ));
+    }
+
+    public function show($id)
+    {
+        return new ResourcesCourse(Course::findOrFail($id));
     }
 }

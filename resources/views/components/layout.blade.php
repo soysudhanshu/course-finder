@@ -21,7 +21,7 @@
     {{ $head ?? '' }}
 </head>
 
-<body>
+<body {{$attributes}}>
     {{ $slot }}
 </body>
 

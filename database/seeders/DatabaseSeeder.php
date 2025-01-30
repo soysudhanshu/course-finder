@@ -7,6 +7,7 @@ use App\Models\CourseCategory;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
 use League\Csv\Reader;
 
 class DatabaseSeeder extends Seeder
@@ -16,24 +17,40 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $file = base_path('database/sample.csv');
+        $categories = $this->createCategories();
 
-        $csv = Reader::createFromPath($file, 'r');
+        Course::factory(10)->create(['price' => 0]);
 
-        $csv->setHeaderOffset(0);
+        $courses = Course::factory()->createMany(10000);
 
-        // $categories = [];
-        foreach ($csv->getRecords() as $record) {
-            $category = $record['category'];
 
-            unset($record['category']);
-            $course =  Course::create($record);
 
-            $category = CourseCategory::where('name', $category)->firstOrCreate([
-                'name' => $category
-            ]);
-
-            $course->categories()->sync($category->id);
+        foreach ($courses as $course) {
+            $course->categories()->sync($categories->random());
+            $course->save();
         }
+    }
+
+    protected function createCategories(): Collection
+    {
+        $categories = collect([
+            'Mathematics',
+            'Biology',
+            'History',
+            'Geography',
+            'Philosophy',
+            'Economics',
+            'Political Science',
+            'Sociology',
+            'Psychology',
+            'Art',
+            'Music',
+            'Drama',
+            'Physical Education',
+            'Engineering',
+            'Medicine',
+        ]);
+
+        return $categories->map(fn($category) => CourseCategory::create(['name' => $category]));
     }
 }

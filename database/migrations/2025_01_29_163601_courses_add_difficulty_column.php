@@ -44,6 +44,9 @@ return new class extends Migration
             $table->tinyText('popularity')
                 ->nullable()
                 ->index();
+
+            $table->tinyText('instructor')
+                ->nullable();
         });
     }
 

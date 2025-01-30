@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\CourseDifficultyEnum;
 use App\Enums\CourseFormatEnum;
+use App\Enums\CoursePopularityEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property bool $is_certified
  * @property mixed $name
  * @property float $price
+ *
  */
 class Course extends Model
 {
@@ -32,6 +34,7 @@ class Course extends Model
             'duration' => 'integer',
             'rating' => 'float',
             'format' =>  CourseFormatEnum::class,
+            'popularity' => CoursePopularityEnum::class,
         ];
     }
 

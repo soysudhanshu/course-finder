@@ -38,6 +38,7 @@ class CourseApiGetTest extends TestCase
             'rating' => 4.5,
             'is_certified' => true,
             'format' => CourseFormatEnum::INTERACTIVE->value,
+            'price' => 100,
         ];
 
         $response = $this->post('/api/courses', $input);
@@ -73,9 +74,9 @@ class CourseApiGetTest extends TestCase
         $input['categories'] = [$newCategory->id];
         $input['rating'] = 4.5;
         $input['is_certified'] = false;
+        $input['price'] = 200;
 
         $response = $this->sendPutRequest($course->id, $input);
-
         $response->assertOk();
 
         $validatedInput = $input;

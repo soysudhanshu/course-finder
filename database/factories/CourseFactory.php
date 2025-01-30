@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\CourseDifficultyEnum;
 use App\Enums\CourseFormatEnum;
+use App\Enums\CoursePopularityEnum;
 use App\Http\Resources\Course;
 use BackedEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -28,6 +29,10 @@ class CourseFactory extends Factory
             'format' => $this->getRandomValue(CourseFormatEnum::class),
             'duration' => $this->faker->numberBetween(1, 200),
             'rating' => $this->faker->randomFloat(1, 0, 5),
+            'is_certified' => $this->faker->boolean(),
+            'price' => $this->faker->randomFloat(2, 0, 10000),
+            'popularity' => $this->getRandomValue(CoursePopularityEnum::class),
+            'instructor' => $this->faker->name(),
         ];
     }
 

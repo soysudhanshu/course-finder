@@ -9,8 +9,8 @@
 
 @endphp
 
-<fieldset class="border-b border-gray-200 p-4 border shadow-sm rounded bg-white ">
-    <legend class="text-lg float-left">{{ $label }}</legend>
+<fieldset class="border-b border-gray-200 p-4 border shadow-sm hover:shadow-lg hover:bg-slate-50 rounded bg-white ">
+    <legend class="text-lg float-left mb-3 font-medium">{{ $label }}</legend>
     <div class="max-h-[200px] overflow-y-auto  clear-both ">
         @foreach ($options as $option)
             <label class="flex gap-2 ">

@@ -23,7 +23,7 @@ class CourseController extends Controller
     {
         $query = Course::query();
 
-        if ($request->has('search')) {
+        if ($request->has('search') && !empty($request->search)) {
             $query->where(function (Builder $query) use ($request) {
                 $search = $request->search;
                 $search = trim($search);
@@ -115,7 +115,7 @@ class CourseController extends Controller
 
         if ($request->has('free_courses_only')) {
             $query->where('price', 0);
-        } elseif ($request->has('price_min') && $request->has('price_max')) {
+        } elseif (!$request->has('free_courses_only') && ($request->has('price_min') && $request->has('price_max'))) {
             $query->whereBetween('price', [$request->price_min, $request->price_max]);
         }
 
@@ -152,9 +152,9 @@ class CourseController extends Controller
         $course->rating = $inputs['rating'];
         $course->is_certified = $inputs['is_certified'];
         $course->format = $inputs['format'];
+        $course->price = $inputs['price'];
 
         $course->save();
-
 
         return response()->json(
             ResourcesCourse::make($course),
@@ -247,6 +247,12 @@ class CourseController extends Controller
                 'required',
                 'array',
                 Rule::exists('course_categories', 'id'),
+            ],
+            'price' => [
+                'required',
+                'numeric',
+                'min:0',
+                'max:999999.99',
             ],
         ];
     }

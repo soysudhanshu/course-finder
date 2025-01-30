@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Enums\CourseDifficultyEnum;
+use App\Enums\RangeEnum;
 use App\Models\Course;
 use App\Models\CourseCategory;
+use DateInterval;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Testing\TestResponse;
@@ -96,15 +99,166 @@ class CourseApiTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
-        $response->assertJsonFragment([
-            "data" => [
-                [
-                    'id' => $course->id,
-                    'name' => $course->name,
-                    'description' => $course->description,
-                ]
+
+        $this->assertResponseContainsCourse($response, $course);
+    }
+
+    public function testDifficultySearch(): void
+    {
+        $response = $this->requestCourses([
+            'difficulty' => [
+                CourseDifficultyEnum::ADVANCED->value,
             ]
         ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(0, 'data');
+
+        /**
+         * Attach difficulty and verify results.
+         */
+        $course = $this->courses[0];
+        $course->difficulty = CourseDifficultyEnum::ADVANCED;
+        $course->save();
+
+        $response = $this->requestCourses([
+            'difficulty' => [
+                CourseDifficultyEnum::ADVANCED->value,
+            ]
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+        $this->assertResponseContainsCourse($response, $course);
+    }
+
+    public function testDifficultyParamAllowMultiple(): void
+    {
+        $this->setCourseProperties(
+            $this->courses[0],
+            ['difficulty' => CourseDifficultyEnum::ADVANCED]
+        );
+
+        $this->setCourseProperties(
+            $this->courses[1],
+            ['difficulty' => CourseDifficultyEnum::INTERMEDIATE]
+        );
+
+        $response = $this->requestCourses([
+            'difficulty' => [
+                CourseDifficultyEnum::ADVANCED->value,
+                CourseDifficultyEnum::INTERMEDIATE->value,
+            ]
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(2, 'data');
+
+        $results = array_column($response->json('data'), 'id');
+
+        $this->assertContains($this->courses[0]->id, $results);
+        $this->assertContains($this->courses[1]->id, $results);
+    }
+
+    public function testDurationParam(): void
+    {
+        $this->setCourseProperties($this->courses[0], ['duration' => 10]);
+
+        $response = $this->requestCourses([
+            'duration' => [
+                RangeEnum::BETWEEN->optionValue(2, 10),
+            ]
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+
+        $this->assertResponseContainsCourse($response, $this->courses[0]);
+    }
+
+    public function testDurationParamAllowsMultiple(): void
+    {
+        $this->setCourseProperties($this->courses[0], ['duration' => 5]);
+        $this->setCourseProperties($this->courses[1], ['duration' => 20]);
+
+        $response = $this->requestCourses([
+            'duration' => [
+                RangeEnum::BETWEEN->optionValue(2, 7),
+                RangeEnum::MORE_THAN->optionValue(10),
+            ]
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(2, 'data');
+
+        $results = array_column($response->json('data'), 'id');
+
+        $this->assertContains($this->courses[0]->id, $results);
+        $this->assertContains($this->courses[1]->id, $results);
+    }
+
+
+    public function testStarRatingParam(): void
+    {
+        $this->setCourseProperties($this->courses[0], ['rating' => 4]);
+        $this->setCourseProperties($this->courses[1], ['rating' => 3]);
+
+        $response = $this->requestCourses([
+            'rating' => RangeEnum::MORE_THAN->optionValue(3),
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+
+        $this->assertResponseContainsCourse($response, $this->courses[0]);
+    }
+
+
+    public function testOnlyCertifiedCourseParam(): void
+    {
+        $this->setCourseProperties($this->courses[0], ['is_certified' => true]);
+        $this->setCourseProperties($this->courses[1], ['is_certified' => false]);
+
+        $response = $this->requestCourses([
+            'certified' => true,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+
+        $this->assertResponseContainsCourse($response, $this->courses[0]);
+    }
+
+    public function testReleaseParam(): void
+    {
+        $this->setCourseProperties(
+            $this->courses[0],
+            ['created_at' => now()->subDays(27)]
+        );
+
+        $this->setCourseProperties(
+            $this->courses[1],
+            ['created_at' => now()->subMonth(2)]
+        );
+
+        $this->setCourseProperties(
+            $this->courses[2],
+            ['created_at' => now()->subMonth(8)]
+        );
+
+
+        $options = [1, 6, 12];
+
+        foreach ($options as $index => $option) {
+            $response = $this->requestCourses([
+                'released' => RangeEnum::BETWEEN->optionValue($option, 0),
+            ]);
+
+            $response->assertStatus(200);
+            $response->assertJsonCount($index + 1, 'data');
+
+            $this->assertResponseContainsCourse($response, $this->courses[$index]);
+        }
     }
 
     protected function requestCourses(array $params = []): TestResponse
@@ -112,6 +266,15 @@ class CourseApiTest extends TestCase
         $response = $this->get('/api/courses?' . http_build_query($params));
 
         return $response;
+    }
+
+    protected function setCourseProperties(Course $course, array $properties): void
+    {
+        foreach ($properties as $key => $value) {
+            $course->$key = $value;
+        }
+
+        $course->save();
     }
 
     protected function addCourse(string $name, string $description): Course
@@ -133,5 +296,12 @@ class CourseApiTest extends TestCase
         $category->save();
 
         return $category;
+    }
+
+    protected function assertResponseContainsCourse(TestResponse $response, Course $course): void
+    {
+        $courses = array_column($response->json('data'), 'id');
+
+        $this->assertContains($course->id, $courses);
     }
 }

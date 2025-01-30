@@ -10,28 +10,25 @@
                 class="grid gap-4 grid-cols-[1fr] bg-gray-100 p-4">
                 {{-- <div class="p-4"> --}}
                 <h2>Filters</h2>
-                <label>
 
-                    <span class="sr-only">Search </span>
-                    <input type="search" name="search"
-                        class=" border px-4 py-3 rounded shadow w-full"
-                        placeholder="Search for courses">
-
-                </label>
-
-                <fieldset class="border-b border-gray-200 p-4 border shadow-sm rounded bg-white ">
-                    <legend class="text-lg float-left">Categories</legend>
-                    <div class="max-h-[200px] overflow-y-auto  clear-both ">
-                        @foreach ($categories as $option)
-                            <label class="flex gap-2 ">
-                                <span>
-                                    <input type="checkbox" name="categories[]" value="{{ $option['value'] }}">
-                                </span>
-                                <span>{{ $option['label'] }}</span>
-                            </label>
-                        @endforeach
-                    </div>
-                </fieldset>
+                @foreach ($filters as $filter)
+                    @if (in_array($filter['type'], ['checklist', 'radio']))
+                        <x-checklist
+                            :type="$filter['type']"
+                            :label="$filter['label']"
+                            :options="$filter['options']"
+                            :name="$filter['name']" />
+                    @elseif($filter['type'] === 'search')
+                        <x-search
+                            :label="$filter['label']"
+                            :name="$filter['name']"
+                            :placeholder="$filter['placeholder']" />
+                    @elseif($filter['type'] === 'toggle')
+                        <x-toggle
+                            :label="$filter['label']"
+                            :name="$filter['name']" />
+                    @endif
+                @endforeach
             </form>
         </aside>
         <div class="flex flex-col gap-4">

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Course;
+use App\Models\CourseCategory;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -21,8 +22,18 @@ class DatabaseSeeder extends Seeder
 
         $csv->setHeaderOffset(0);
 
+        // $categories = [];
         foreach ($csv->getRecords() as $record) {
-            Course::create($record);
+            $category = $record['category'];
+
+            unset($record['category']);
+            $course =  Course::create($record);
+
+            $category = CourseCategory::where('name', $category)->firstOrCreate([
+                'name' => $category
+            ]);
+
+            $course->categories()->sync($category->id);
         }
     }
 }

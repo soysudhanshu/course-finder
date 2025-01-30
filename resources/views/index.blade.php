@@ -4,7 +4,7 @@
     </x-slot:head>
 
 
-    <div class="container mx-auto my-8 grid grid-cols-[1fr] lg:grid-cols-[3fr_9fr] gap-4 px-4" x-data="courseFinder()">
+    <div class="container mx-auto my-8 grid grid-cols-[1fr] lg:grid-cols-[4fr_8fr] gap-4 px-4" x-data="courseFinder()">
         <div class="lg:hidden">
             <button class="border px-4 py-2 hover:bg-black hover:text-white "
                 x-on:click="showMobileMenu = !showMobileMenu">
@@ -55,7 +55,7 @@
 
             <template x-for="course in courses" :key="course.id">
                 <div class="border shadow-sm rounded flex">
-                    <div class="max-w-xs shrink-0 grow-0">
+                    <div class="hidden xl:block max-w-xs shrink-0 grow-0">
                         <img class="w-full h-full object-cover rounded"
                             src="https://images.pexels.com/photos/326055/pexels-photo-326055.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2">
                     </div>

@@ -11,9 +11,9 @@
             <span class="" data-max-display></span>
         </div>
         <div class="jq-range-slider"></div>
-        <input type="text" x-ref="min" data-max name="{{ $maxInputName }}" readonly value="{{ $min }}"
+        <input type="text" x-ref="min" data-min name="{{ $minInputName }}" readonly value="{{ $min }}"
             class="hidden">
-        <input type="text" x-ref="max" data-min name="{{ $minInputName }}" readonly value="{{ $max }}"
+        <input type="text" x-ref="max" data-max name="{{ $maxInputName }}" readonly value="{{ $max }}"
             class="hidden">
     </div>
 

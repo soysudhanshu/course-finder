@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\CourseDifficultyEnum;
 use App\Enums\CourseFormatEnum;
+use App\Enums\CoursePopularityEnum;
 use App\Enums\RangeEnum;
 use App\Models\Course;
 use App\Models\CourseCategory;
@@ -73,6 +74,12 @@ class IndexController extends Controller
                 'name' => 'format',
                 'label' => 'Course Format',
                 'options' => $this->getCourseFormatOptions(),
+            ],
+            [
+                'type' => 'radio',
+                'name' => 'popularity',
+                'label' => 'Popularity',
+                'options' => $this->getPopularityOptions(),
             ]
 
         ];
@@ -172,6 +179,11 @@ class IndexController extends Controller
 
     private function getPopularityOptions(): array
     {
-        return [];
+        return array_map(function (CoursePopularityEnum $enum) {
+            return [
+                'label' => $enum->label(),
+                'value' => $enum->value,
+            ];
+        }, CoursePopularityEnum::cases());
     }
 }

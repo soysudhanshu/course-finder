@@ -119,6 +119,10 @@ class CourseController extends Controller
             $query->whereBetween('price', [$request->price_min, $request->price_max]);
         }
 
+        if ($request->has('popularity')) {
+            $query->where('popularity', $request->popularity);
+        }
+
         return new CourseCollection($query->paginate(
             page: $request->page ?? 1,
         ));

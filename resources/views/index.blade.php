@@ -66,7 +66,10 @@
                             :label="$filter['label']"
                             :name="$filter['name']" />
                     @elseif($filter['type'] === 'range')
-                        <x-price min-input-name="price_min" max-input-name="price_max" />
+                        <x-price
+                            :max="$filter['max']"
+                            min-input-name="price_min"
+                            max-input-name="price_max" />
                     @endif
                 @endforeach
             </form>

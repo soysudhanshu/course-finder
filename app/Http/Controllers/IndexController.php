@@ -38,6 +38,7 @@ class IndexController extends Controller
             ],
             [
                 'type' => 'range',
+                'max' => $this->getCourseMaxPrice(),
             ],
             [
                 'type' => 'checklist',
@@ -85,6 +86,11 @@ class IndexController extends Controller
         ];
     }
 
+
+    protected function getCourseMaxPrice(): int
+    {
+        return ceil(Course::max('price'));
+    }
     protected function getCourseCategoryOptions(): Collection
     {
         return CourseCategory::all()->map(function (CourseCategory $category) {

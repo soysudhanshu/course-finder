@@ -9,6 +9,9 @@
                     <x-tag x-text="course.difficulty" />
                     <x-tag x-text="course.format" />
                     <x-tag x-text="course.popularity" />
+                    <template x-if="course.is_certified">
+                        <x-tag text="Certified" />
+                    </template>
 
                     <template x-if="course.is_free">
                         <x-tag text="Free" />

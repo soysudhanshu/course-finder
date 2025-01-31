@@ -28,7 +28,7 @@ class Course extends JsonResource
             'rating' => $this->rating,
             'instructor' => $this->instructor,
             'popularity' => $this->popularity?->label(),
-
+            'is_certified' => $this->is_certified,
         ];
     }
 }

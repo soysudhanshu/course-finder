@@ -16,7 +16,7 @@ use Illuminate\Testing\TestResponse;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
-class CourseApiTest extends TestCase
+class CourseCollectionApiTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -40,21 +40,9 @@ class CourseApiTest extends TestCase
         $this->user = User::factory()->create();
     }
 
-    
 
-    public function testDeletesCourse(): void
-    {
-        $course = $this->courses[0];
 
-        Sanctum::actingAs($this->user);
-        $response = $this->delete('/api/courses/' . $course->id);
 
-        $response->assertStatus(200);
-
-        $this->assertDatabaseMissing('courses', [
-            'id' => $course->id,
-        ]);
-    }
 
 
     /**

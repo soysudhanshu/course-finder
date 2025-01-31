@@ -15,7 +15,7 @@ use Illuminate\Testing\TestResponse;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
-class CourseApiGetTest extends TestCase
+class CourseModificationRouteTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -31,7 +31,44 @@ class CourseApiGetTest extends TestCase
         $this->user = User::factory()->create();
     }
 
-    public function testAddCourse(): void
+
+    public function testDeleteRouteRequiresAuthentication(): void
+    {
+        $course = Course::factory()->createOne();
+
+        $response = $this->delete(
+            '/api/courses/' . $course->id,
+            headers: ['Accept' => 'application/json']
+        );
+
+        $response->assertUnauthorized();
+    }
+
+    public function testDeleteRoute(): void
+    {
+        $course = Course::factory()->createOne();
+
+        Sanctum::actingAs($this->user);
+        $response = $this->delete('/api/courses/' . $course->id);
+
+        $response->assertStatus(200);
+
+        $this->assertDatabaseMissing('courses', [
+            'id' => $course->id,
+        ]);
+    }
+
+    public function testAddCourseRequiresAuthentication(): void
+    {
+        $response = $this->post(
+            '/api/courses',
+            headers: ['Accept' => 'application/json']
+        );
+
+        $response->assertUnauthorized();
+    }
+
+    public function testAddCourseRoute(): void
     {
         $course = Course::factory()->makeOne();
 
@@ -40,8 +77,6 @@ class CourseApiGetTest extends TestCase
 
         Sanctum::actingAs(User::factory()->create());
         $response = $this->post('/api/courses', $input);
-
-        // dd($response->json(), $input);
 
         $response->assertCreated();
 
@@ -53,6 +88,20 @@ class CourseApiGetTest extends TestCase
         Course::first()->categories()->get()->each(function (CourseCategory $category) use ($input) {
             $this->assertContains($category->id, $input['categories']);
         });
+    }
+
+    public function testPutRouteRequiresAuthentication(): void
+    {
+        // $course = Course::factory()->createOne();
+
+        $response = $this->put(
+            "/api/courses/1",
+            headers: [
+                'Accept' => 'application/json'
+            ]
+        );
+
+        $response->assertUnauthorized();
     }
 
     public function testPutRequest(): void
@@ -101,11 +150,11 @@ class CourseApiGetTest extends TestCase
         ], $overrides);
     }
 
-    protected function sendPutRequest(int $id, array $input): TestResponse
+    protected function sendPutRequest(int $id, array $input = [], array $headers = []): TestResponse
     {
         Sanctum::actingAs(User::factory()->create());
 
-        return  $this->put("/api/courses/{$id}", $input);
+        return  $this->put("/api/courses/{$id}", $input, $headers);
     }
 
     protected function createCourseCategory(string $name): CourseCategory

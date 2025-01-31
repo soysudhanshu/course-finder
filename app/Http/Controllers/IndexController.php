@@ -15,7 +15,6 @@ class IndexController extends Controller
 {
     public  function __invoke()
     {
-
         return view('index', [
             'filters' => $this->getFilters(),
         ]);
@@ -86,11 +85,11 @@ class IndexController extends Controller
         ];
     }
 
-
     protected function getCourseMaxPrice(): int
     {
         return ceil(Course::max('price'));
     }
+
     protected function getCourseCategoryOptions(): Collection
     {
         return CourseCategory::all()->map(function (CourseCategory $category) {

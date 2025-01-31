@@ -7,6 +7,7 @@ use App\Enums\CourseFormatEnum;
 use App\Enums\CoursePopularityEnum;
 use App\Enums\RangeEnum;
 use App\Http\Requests\AddCourseRequest;
+use App\Http\Requests\CourseUpdateRequest;
 use App\Http\Resources\Course as ResourcesCourse;
 use App\Http\Resources\CourseCollection;
 use App\Models\Course;
@@ -134,15 +135,9 @@ class CourseController extends Controller
         return new ResourcesCourse(Course::findOrFail($id));
     }
 
-    public function add(Request $request)
+    public function add(CourseUpdateRequest $request)
     {
-        $validator = Validator::make($request->all(), $this->getValidations());
-
-        if (!$validator->passes()) {
-            return response()->json($validator->errors(), Response::HTTP_BAD_REQUEST);
-        }
-
-        $inputs = $validator->validated();
+        $inputs = $request->validated();
 
         $course  = new Course();
 
@@ -166,7 +161,7 @@ class CourseController extends Controller
         );
     }
 
-    public function update(Request $request, $id)
+    public function update(CourseUpdateRequest $request, $id)
     {
         $course = Course::find($id);
 
@@ -174,13 +169,7 @@ class CourseController extends Controller
             return response()->json(['Course not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $validator = Validator::make($request->all(), $this->getValidations());
-
-        if (!$validator->passes()) {
-            return response()->json($validator->errors(), Response::HTTP_BAD_REQUEST);
-        }
-
-        $inputs = $validator->validated();
+        $inputs = $request->validated();
 
         $course->name = $inputs['name'];
         $course->description = $inputs['description'];
@@ -211,65 +200,5 @@ class CourseController extends Controller
         }
 
         return response()->json(['Course successfully deleted'], Response::HTTP_OK);
-    }
-
-    public function getValidations(): array
-    {
-        return [
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-            'description' => [
-                'required',
-                'string',
-                'max:500',
-            ],
-            'difficulty' => [
-                'required',
-                Rule::enum(CourseDifficultyEnum::class),
-            ],
-            'duration' => [
-                'required',
-                'numeric',
-                'min:0',
-                'max:255',
-            ],
-            'rating' => [
-                'required',
-                'numeric',
-                'min:0',
-                'max:5',
-            ],
-            'is_certified' => [
-                'required',
-                'boolean',
-            ],
-            'format' => [
-                'required',
-                Rule::enum(CourseFormatEnum::class),
-            ],
-            'categories' => [
-                'required',
-                'array',
-                Rule::exists('course_categories', 'id'),
-            ],
-            'price' => [
-                'required',
-                'numeric',
-                'min:0',
-                'max:999999.99',
-            ],
-            'popularity' => [
-                'required',
-                Rule::enum(CoursePopularityEnum::class),
-            ],
-            'instructor' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-        ];
     }
 }

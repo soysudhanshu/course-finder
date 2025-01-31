@@ -25,7 +25,8 @@ class CourseController extends Controller
     {
         $query = Course::query();
 
-        if ($request->has('search') && !empty($request->search)) {
+        if ($request->has('search') && is_scalar($request->search)) {
+
             $query->where(function (Builder $query) use ($request) {
                 $search = $request->search;
                 $search = trim($search);
@@ -41,21 +42,25 @@ class CourseController extends Controller
         }
 
 
-        if ($request->has('categories')) {
-            $query->whereHas('categories', function (Builder $query) use ($request) {
-                $query->whereIn('id', $request->categories);
+        if ($request->has('categories') && is_array($request->categories)) {
+            $categories = array_filter($request->categories, 'is_numeric');
+
+            $query->whereHas('categories', function (Builder $query) use ($categories) {
+                $query->whereIn('id', $categories);
             });
         }
 
-        if ($request->has('difficulty')) {
-            $query->whereIn('difficulty', $request->difficulty);
+        if ($request->has('difficulty') && is_array($request->difficulty)) {
+
+            $query->whereIn('difficulty', array_filter($request->difficulty, 'is_numeric'));
         }
 
 
-        if ($request->has('duration')) {
+        if ($request->has('duration') && is_array($request->duration)) {
+            $durations = array_filter($request->duration, 'is_scalar');
 
-            $query->where(function (Builder $query) use ($request) {
-                foreach ($request->duration as $duration) {
+            $query->where(function (Builder $query) use ($durations) {
+                foreach ($durations as $duration) {
                     $duration = RangeEnum::parseOption($duration);
 
                     if (is_null($duration)) {
@@ -85,7 +90,8 @@ class CourseController extends Controller
         }
 
 
-        if ($request->has('rating')) {
+        if ($request->has('rating') && is_scalar($request->rating)) {
+
             $rating = RangeEnum::parseOption($request->rating);
 
             if (!is_null($rating) && $rating['type'] === RangeEnum::MORE_THAN) {
@@ -102,6 +108,10 @@ class CourseController extends Controller
         if ($request->has('released')) {
             $release = RangeEnum::parseOption($request->released);
 
+            if (is_null($release)) {
+                return response()->json(['Invalid release date range'], Response::HTTP_BAD_REQUEST);
+            }
+
             match ($release['type']) {
                 RangeEnum::BETWEEN => $query->whereBetween(
                     'created_at',
@@ -111,17 +121,17 @@ class CourseController extends Controller
             };
         }
 
-        if ($request->has('format')) {
+        if ($request->has('format') && is_scalar($request->format)) {
             $query->where('format', $request->format);
         }
 
         if ($request->has('free_courses_only')) {
             $query->where('price', 0);
-        } elseif (!$request->has('free_courses_only') && ($request->has('price_min') && $request->has('price_max'))) {
+        } elseif (!$request->has('free_courses_only') && ($request->has('price_min') && $request->has('price_max') && is_numeric($request->price_min) && is_numeric($request->price_max))) {
             $query->whereBetween('price', [$request->price_min, $request->price_max]);
         }
 
-        if ($request->has('popularity')) {
+        if ($request->has('popularity') && is_scalar($request->popularity)) {
             $query->where('popularity', $request->popularity);
         }
 

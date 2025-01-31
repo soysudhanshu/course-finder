@@ -41,14 +41,17 @@ cp .env.example .env
 
 php artisan key:generate
 
+npm install
+
 npm run build
 
-npm install
+
 
 ```
 
 ## Seeding Database
 ```bash
+php artisan migrate
 php artisan db:seed
 ```
 

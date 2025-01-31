@@ -76,7 +76,7 @@ php artisan api:create-token jhon@gmail.com
 ```
 
 ### API Endpoints
-Project provides endpoints to perform CRUD operations on courses.
+Project provides endpoints to perform CRUD operations on courses, when request the endpoints ensure `Accept: application/json` header is set.
 
 #### Authentication
 Some endpoints require authentication. You can pass the API token in the header as `Authorization: Bearer {api_token}`
@@ -107,13 +107,20 @@ Fetches list of all courses and provides parameters to filter the courses.
 
 **Example Request**
 ```http
+
 GET /api/courses?search=&price_min=0&price_max=10000&categories%5B%5D=2&difficulty%5B%5D=1&rating=MORE_THAN_4
+
+Headers:
+    Accept: application/json
 ```
 
 ##### 2. Course Resource
 
 ```http
 GET /api/courses/{id}
+
+Headers:
+    Accept: application/json
 ```
 Retrieves a single course by its ID.
 
@@ -121,6 +128,10 @@ Retrieves a single course by its ID.
 
 ```http
 POST /api/courses
+
+Headers:
+    Accept: application/json
+    Authorization: Bearer {api_token}
 ```
 Registers a new course in the database. Note that this endpoint requires authentication.
 
@@ -142,6 +153,11 @@ Registers a new course in the database. Note that this endpoint requires authent
 **Example Request**
 ```http
 POST /api/courses
+Headers:
+    Accept: application/json
+    Authorization: Bearer {api_token}
+
+Body:
 {
     "name": "Course Name",
     "description": "Course Description",
@@ -160,6 +176,10 @@ POST /api/courses
 
 ```http
 PUT /api/courses/{id}
+
+Headers:
+    Accept: application/json
+    Authorization: Bearer {api_token}
 ```
 Allows updating an existing course. Note that this endpoint requires authentication.
 
@@ -169,6 +189,10 @@ Same as the course creation endpoint.
 **Example Request**
 ```http
 PUT /api/courses/1
+
+Headers:
+    Accept: application/json
+    Authorization: Bearer {api_token}
 {
     "name": "Course Name",
     "description": "Course Description",
@@ -188,5 +212,9 @@ PUT /api/courses/1
 
 ```http
 DELETE /api/courses/{id}
+
+Headers:
+    Accept: application/json
+    Authorization: Bearer {api_token}
 ```
 Deletes a course from the database. Note that this endpoint requires authentication.

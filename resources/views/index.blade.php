@@ -152,8 +152,9 @@
             <div class="flex justify-center gap-2 ">
                 <template x-for="link in paginationItems" :key="link.id">
                     <label
-                        :class="{ 'bg-blue-900 text-white': link.active,
-                        'aspect-square w-[2rem] hidden  lg:flex' : link.isNumeric,
+                        :class="{
+                            'bg-blue-900 text-white': link.active,
+                            'aspect-square w-[2rem] hidden  lg:flex': link.isNumeric,
                         }"
                         type="submit"
                         @class([
@@ -212,7 +213,7 @@
                     let lowerLimit = Math.max(1, currentPage - maxItems);
                     const upperLimit = Math.min(totalPages, currentPage + maxItems);
 
-                    if(lowerLimit === $upperLimit) {
+                    if (lowerLimit === upperLimit) {
                         return [];
                     }
 

@@ -7,6 +7,7 @@ use App\Enums\CourseFormatEnum;
 use App\Enums\CoursePopularityEnum;
 use App\Enums\RangeEnum;
 use App\Http\Requests\AddCourseRequest;
+use App\Http\Requests\CourseSearchRequest;
 use App\Http\Requests\CourseUpdateRequest;
 use App\Http\Resources\Course as ResourcesCourse;
 use App\Http\Resources\CourseCollection;
@@ -21,14 +22,16 @@ use Illuminate\Validation\Rule;
 class CourseController extends Controller
 {
 
-    public function index(Request $request)
+    public function index(CourseSearchRequest $request)
     {
+        $validated = $request->validated();
+
         $query = Course::query();
 
-        if ($request->has('search') && is_scalar($request->search)) {
+        $search = $validated['search'] ?? '';
 
-            $query->where(function (Builder $query) use ($request) {
-                $search = $request->search;
+        if ($search) {
+            $query->where(function (Builder $query) use ($search) {
                 $search = trim($search);
                 $search = explode(' ', $search);
 
@@ -41,23 +44,24 @@ class CourseController extends Controller
             });
         }
 
+        $categories = $validated['categories'] ?? [];
 
-        if ($request->has('categories') && is_array($request->categories)) {
-            $categories = array_filter($request->categories, 'is_numeric');
-
+        if ($categories) {
             $query->whereHas('categories', function (Builder $query) use ($categories) {
                 $query->whereIn('id', $categories);
             });
         }
 
-        if ($request->has('difficulty') && is_array($request->difficulty)) {
+        $difficulty = $validated['difficulty'] ?? [];
 
-            $query->whereIn('difficulty', array_filter($request->difficulty, 'is_numeric'));
+        if ($difficulty) {
+            $query->whereIn('difficulty', $difficulty);
         }
 
 
-        if ($request->has('duration') && is_array($request->duration)) {
-            $durations = array_filter($request->duration, 'is_scalar');
+        $durations = $validated['duration'] ?? [];
+
+        if ($durations) {
 
             $query->where(function (Builder $query) use ($durations) {
                 foreach ($durations as $duration) {
@@ -90,9 +94,10 @@ class CourseController extends Controller
         }
 
 
-        if ($request->has('rating') && is_scalar($request->rating)) {
+        $rating = $validated['rating'] ?? '';
 
-            $rating = RangeEnum::parseOption($request->rating);
+        if ($rating) {
+            $rating = RangeEnum::parseOption($rating);
 
             if (!is_null($rating) && $rating['type'] === RangeEnum::MORE_THAN) {
                 $query->where('rating', '>', $rating['start']);
@@ -101,12 +106,15 @@ class CourseController extends Controller
             }
         }
 
-        if ($request->has('certified')) {
+        $certified = $validated['certified'] ?? false;
+        if ($certified) {
             $query->where('is_certified', 1);
         }
 
-        if ($request->has('released')) {
-            $release = RangeEnum::parseOption($request->released);
+        $release = $validated['released'] ?? '';
+
+        if ($release) {
+            $release = RangeEnum::parseOption($release);
 
             if (is_null($release)) {
                 return response()->json(['Invalid release date range'], Response::HTTP_BAD_REQUEST);
@@ -121,18 +129,26 @@ class CourseController extends Controller
             };
         }
 
-        if ($request->has('format') && is_scalar($request->format)) {
-            $query->where('format', $request->format);
+        $format = $validated['format'] ?? '';
+
+        if ($format) {
+            $query->where('format', $format);
         }
 
-        if ($request->has('free_courses_only')) {
+        $onlyFree = $request['free_courses_only'] ?? false;
+        $minPrice = $request['price_min'] ?? 0;
+        $maxPrice = $request['price_max'] ?? 0;
+
+        if ($onlyFree) {
             $query->where('price', 0);
-        } elseif (!$request->has('free_courses_only') && ($request->has('price_min') && $request->has('price_max') && is_numeric($request->price_min) && is_numeric($request->price_max))) {
-            $query->whereBetween('price', [$request->price_min, $request->price_max]);
+        } elseif (!$onlyFree && ($minPrice || $maxPrice)) {
+            $query->whereBetween('price', [$minPrice, $maxPrice]);
         }
 
-        if ($request->has('popularity') && is_scalar($request->popularity)) {
-            $query->where('popularity', $request->popularity);
+        $popularity = $validated['popularity'] ?? '';
+
+        if ($popularity) {
+            $query->where('popularity', $popularity);
         }
 
         return new CourseCollection($query->paginate(

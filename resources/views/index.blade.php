@@ -127,7 +127,11 @@
 
                     url.search = new URLSearchParams(filters);
 
-                    fetch(url)
+                    fetch(url, {
+                            headers: {
+                                'Accept': 'application/json',
+                            }
+                        })
                         .then(response => response.json())
                         .then(data => {
                             this.courses = data.data;

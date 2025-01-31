@@ -65,7 +65,7 @@ class IndexController extends Controller
             ],
             [
                 'type' => 'radio',
-                'name' => 'release_date',
+                'name' => 'released',
                 'label' => 'Release Date',
                 'options' => $this->getReleaseDateOptions(),
             ],

@@ -30,7 +30,7 @@ class CourseFactory extends Factory
             'duration' => $this->faker->numberBetween(1, 200),
             'rating' => $this->faker->randomFloat(1, 0, 5),
             'is_certified' => $this->faker->boolean(),
-            'price' => $this->faker->randomFloat(2, 0, 10000),
+            'price' => $this->faker->randomFloat(2, 500, 2000),
             'popularity' => $this->getRandomValue(CoursePopularityEnum::class),
             'instructor' => $this->faker->name(),
         ];
